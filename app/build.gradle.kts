@@ -51,4 +51,5 @@ dependencies {
     implementation (libs.google.filament.android)
     implementation (libs.filament.utils.android)
     implementation (libs.gltfio.android)
+    implementation (libs.lottie)
 }

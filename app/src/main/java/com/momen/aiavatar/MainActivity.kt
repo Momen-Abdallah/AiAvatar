@@ -74,7 +74,8 @@ class MainActivity : AppCompatActivity() {
         val prompt = "Write a story about a magic backpack."
 
 // To generate text output, call generateContent with the text input
-        binding.button.setOnClickListener {
+
+        binding.animatedMic.setOnClickListener {
 //            lifecycleScope.launch {
 //                val response = model.generateContent(prompt)
 //                Log.d("momen-test", "onCreate: ${response.text}")
@@ -169,6 +170,8 @@ class MainActivity : AppCompatActivity() {
             speechRecognizer?.setRecognitionListener(object : RecognitionListener {
                 override fun onReadyForSpeech(params: Bundle?) {
                     Log.d("speechRecognizer--", "onReadyForSpeech")
+                    binding.animatedMic.setAnimation(R.raw.mic_animation)
+                    binding.animatedMic.playAnimation()
 //                    FL.i(TAG, "SPEECH Results onReadyForSpeech")
 
 //                    val toneGenerator = ToneGenerator(AudioManager.STREAM_DTMF, 80)
@@ -204,6 +207,8 @@ class MainActivity : AppCompatActivity() {
                 override fun onEndOfSpeech() {
                     Toast.makeText(this@MainActivity, "onEndOfSpeech", Toast.LENGTH_SHORT).show()
                     Log.d("speechRecognizer--", "onEndOfSpeech")
+                    binding.animatedMic.setAnimation(R.raw.mic)
+                    binding.animatedMic.playAnimation()
 //                    FL.i(TAG, "SPEECH Results onEndOfSpeech")
 //                    if (dialogDialUserCountDown != null) {
 //                        dialogDialUserCountDown!!.setRMSMarin(30f)
@@ -217,6 +222,8 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onError(error: Int) {
                     Log.d("speechRecognizer--", "onError")
+                    binding.animatedMic.setAnimation(R.raw.mic)
+                    binding.animatedMic.playAnimation()
 //                    Toast.makeText(this@MainActivity, "Error", Toast.LENGTH_SHORT).show()
                 }
 
@@ -229,26 +236,26 @@ class MainActivity : AppCompatActivity() {
                     Log.d("speechRecognizer--", "onPartialResults")
 //                    Toast.makeText(this@MainActivity, "onPartialResults", Toast.LENGTH_SHORT).show()
 
-                    var data =
-                        partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                    var unstableData =
-                        partialResults?.getStringArrayList("android.speech.extra.UNSTABLE_TEXT")
-                    var matches = ArrayList<String>()
-                    if (data != null) {
-                        data.forEachIndexed { index, element ->
-                            matches.add(data.get(index) + unstableData?.get(index))
-                        }
-                        if (matches != null) {
-//                               Log.d("speechRecognizer--result", matches.toString())
-                            Log.i(
-                                "TAG",
-                                "SPEECH Results onPartialResults are: " + matches.toString()
-                            )
-                        } else Log.i("TAG", "SPEECH Results onPartialResults are NULL")
-
-
-//                        handleVoiceRecogMatches(matches)
-                    }
+//                    var data =
+//                        partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+//                    var unstableData =
+//                        partialResults?.getStringArrayList("android.speech.extra.UNSTABLE_TEXT")
+//                    var matches = ArrayList<String>()
+//                    if (data != null) {
+//                        data.forEachIndexed { index, element ->
+//                            matches.add(data.get(index) + unstableData?.get(index))
+//                        }
+//                        if (matches != null) {
+////                               Log.d("speechRecognizer--result", matches.toString())
+//                            Log.i(
+//                                "TAG",
+//                                "SPEECH Results onPartialResults are: " + matches.toString()
+//                            )
+//                        } else Log.i("TAG", "SPEECH Results onPartialResults are NULL")
+//
+//
+////                        handleVoiceRecogMatches(matches)
+//                    }
 //                    FL.i(TAG, "SPEECH Results onPartialResults")
                 }
 
@@ -257,7 +264,13 @@ class MainActivity : AppCompatActivity() {
                     var matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     if (matches != null) {
                         Log.d("speechRecognizer--result", matches.toString())
+                        lifecycleScope.launch {
+                            val response = model.generateContent(matches.first().toString())
+                            speak(response.text ?: "")
+                            binding.textView.text = response.text
 
+//                    binding.response.text = response.text
+                        }
 //                        FL.i(TAG, "SPEECH Results are: " + matches.toString())
                     }
 //                    else FL.i(TAG, "SPEECH Results are NULL")
@@ -277,6 +290,8 @@ class MainActivity : AppCompatActivity() {
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
         )
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar")
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "ar")
         speechRecognizer?.startListening(intent)
 //        object : CountDownTimer(10000, 10000) {
 //            override fun onTick(millisUntilFinished: Long) {}

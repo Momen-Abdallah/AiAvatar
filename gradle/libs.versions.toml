@@ -12,6 +12,7 @@ constraintlayout = "2.2.1"
 googleGmsGoogleServices = "4.4.2"
 firebaseAi = "16.1.0"
 filamentAndroidVersion = "1.57.1"
+lottie = "6.5.2"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -25,6 +26,7 @@ firebase-ai = { group = "com.google.firebase", name = "firebase-ai", version.ref
 filament-utils-android = { module = "com.google.android.filament:filament-utils-android", version.ref = "filamentAndroidVersion" }
 gltfio-android = { module = "com.google.android.filament:gltfio-android", version.ref = "filamentAndroidVersion" }
 google-filament-android = { module = "com.google.android.filament:filament-android", version.ref = "filamentAndroidVersion" }
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

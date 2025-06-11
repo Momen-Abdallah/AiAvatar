@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.GestureDetector
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.filament.Fence
@@ -55,7 +56,7 @@ class FilamentActivity : Activity() {
     private lateinit var choreographer: Choreographer
     private val frameScheduler = FrameCallback()
     private lateinit var modelViewer: ModelViewer
-    private lateinit var titlebarHint: TextView
+    private lateinit var titlebarHint: Button
     private val doubleTapListener = DoubleTapListener()
     private val singleTapListener = SingleTapListener()
     private lateinit var doubleTapDetector: GestureDetector
@@ -69,6 +70,7 @@ class FilamentActivity : Activity() {
     private var loadStartFence: Fence? = null
     private val viewerContent = AutomationEngine.ViewerContent()
 
+    private var animationIndex = 0
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +91,14 @@ class FilamentActivity : Activity() {
         viewerContent.scene = modelViewer.scene
         viewerContent.renderer = modelViewer.renderer
 
+        titlebarHint.setOnClickListener{
+//            modelViewer.animator?.applyAnimation(modelViewer.animator?.animationCount!!-1,System.currentTimeMillis().toFloat())
+
+         if (animationIndex<modelViewer.animator?.animationCount!!-1)
+                animationIndex++
+            else
+                animationIndex=0
+        }
         surfaceView.setOnTouchListener { _, event ->
             modelViewer.onTouchEvent(event)
             doubleTapDetector.onTouchEvent(event)
@@ -140,7 +150,7 @@ class FilamentActivity : Activity() {
     }
 
     private fun createDefaultRenderables() {
-        val buffer = assets.open("models/update.glb").use { input ->
+        val buffer = assets.open("models/fox.glb").use { input ->
             val bytes = ByteArray(input.available())
             input.read(bytes)
             ByteBuffer.wrap(bytes)
@@ -153,13 +163,13 @@ class FilamentActivity : Activity() {
     private fun createIndirectLight() {
         val engine = modelViewer.engine
         val scene = modelViewer.scene
-        val ibl = "default_env"
-        readCompressedAsset("envs/${ibl}_ibl.ktx").let {
+        val ibl = "venetian_crossroads_2k"
+        readCompressedAsset("crossroads/${ibl}_ibl.ktx").let {
             scene.indirectLight = KTX1Loader.createIndirectLight(engine, it)
             scene.indirectLight!!.intensity = 30_000.0f
             viewerContent.indirectLight = modelViewer.scene.indirectLight
         }
-        readCompressedAsset("envs/${ibl}_skybox.ktx").let {
+        readCompressedAsset("crossroads/${ibl}_skybox.ktx").let {
             scene.skybox = KTX1Loader.createSkybox(engine, it)
         }
     }
@@ -428,7 +438,9 @@ class FilamentActivity : Activity() {
             modelViewer.animator?.apply {
                 if (animationCount > 0) {
                     val elapsedTimeSeconds = (frameTimeNanos - startTime).toDouble() / 1_000_000_000
-                    applyAnimation(0, elapsedTimeSeconds.toFloat())
+                    applyAnimation(animationIndex, elapsedTimeSeconds.toFloat())
+                    if (animationIndex !=0)
+                        applyAnimation(0, elapsedTimeSeconds.toFloat())
                 }
                 updateBoneMatrices()
             }
